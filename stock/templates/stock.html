@@ -1,17 +1,85 @@
 {% extends 'base.html' %}
 {% block content %}
-<div>
-    Акции {{ stock.name }} ({{ stock.ticker }}) 
-    <img src="{{ MEDIA_URL }}/{{ stock.logo }}" width="40" />
+
+{% if messages %}
+<div class="messages">
+    {% for message in messages %}
+    <div class="alert alert-{% if message.tags %}{{ message.tags }}{% endif %}">
+        {{ message }}
+    </div>
+    {% endfor %}
 </div>
-<div>
-    <form method="POST" action="{% url 'stock:buy' stock.pk %}">
-        {% csrf_token %}
-        {{ form }}
-        <button>Купить</button>
-    </form>
+{% endif %}
+
+<div class="mb-3">
+    <h3>Акции {{ stock.name }} ({{ stock.ticker }})</h3>
+    {% if stock.logo %}
+        <img src="{{ MEDIA_URL }}/{{ stock.logo }}" width="80" />
+    {% endif %}
 </div>
-<div>
-    <a href="{% url 'stock:list' %}">Назад к списку</a>
+
+<div class="mb-3">
+    <h4>Текущая цена: {{ stock.get_random_price }}{{ stock.currency.sign }}</h4>
 </div>
+
+<div class="row">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header bg-success text-white">
+                <h5>Купить акции</h5>
+            </div>
+            <div class="card-body">
+                <form method="POST" action="{% url 'stock:buy' stock.pk %}">
+                    {% csrf_token %}
+                    <div class="mb-3">
+                        <label for="buy_price" class="form-label">Цена за акцию</label>
+                        <input type="text" name="price" value="{{ stock.get_random_price }}" readonly class="form-control" id="buy_price">
+                    </div>
+                    <div class="mb-3">
+                        <label for="buy_amount" class="form-label">Количество</label>
+                        <input type="number" name="amount" required class="form-control" id="buy_amount" min="1">
+                    </div>
+                    <button type="submit" class="btn btn-success w-100">Купить</button>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header bg-danger text-white">
+                <h5>Продать акции</h5>
+            </div>
+            <div class="card-body">
+                <form method="POST" action="{% url 'stock:sell' stock.pk %}">
+                    {% csrf_token %}
+                    <div class="mb-3">
+                        <label for="sell_price" class="form-label">Цена за акцию</label>
+                        <input type="text" name="price" value="{{ stock.get_random_price }}" readonly class="form-control" id="sell_price">
+                    </div>
+                    <div class="mb-3">
+                        <label for="sell_amount" class="form-label">Количество</label>
+                        <input type="number" name="amount" required class="form-control" id="sell_amount" min="1">
+                    </div>
+                    <button type="submit" class="btn btn-danger w-100">Продать</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="mt-3">
+    <a href="{% url 'stock:list' %}" class="btn btn-secondary">Назад к списку</a>
+</div>
+
+{% if form.errors %}
+<div class="alert alert-danger mt-3">
+    {% for field, errors in form.errors.items %}
+        {% for error in errors %}
+            {{ error }}<br>
+        {% endfor %}
+    {% endfor %}
+</div>
+{% endif %}
+
 {% endblock %}

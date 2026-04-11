@@ -7,6 +7,7 @@
             <th>Тикер</th>
             <th>Компания</th>
             <th>Последняя цена</th>
+            <th>Действия</th>
         </tr>
     </thead>
     <tbody>
@@ -19,9 +20,9 @@
             </td>
             <td>{{ stock.ticker }}</td>
             <td>{{ stock.name }}</td>
+            <td>{{ stock.get_random_price }}{{ stock.currency.sign }}</td>
             <td>
-                {{ stock.get_random_price }}{{ stock.currency.sign }}
-                <a href="{% url 'stock:detail' stock.pk %}">Купить</a>
+                <a href="{% url 'stock:detail' stock.pk %}" class="btn btn-primary btn-sm">Купить/Продать</a>
             </td>
         </tr>
         {% endfor %}
